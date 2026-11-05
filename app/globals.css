@@ -1,20 +1,20 @@
-/* Layout concept: a warm, earthy boho shop. Linen ground with a faint paper grain,
-   clay and sage from natural dyes, arch-topped photos like a cottage window,
-   and a hand-stitched band as the one signature mark. Single warm light theme by choice. */
+/* Layout concept: a warm, earthy boho shop in a bakery palette. Vanilla ground with a
+   faint paper grain, chocolate type, caramel accents, sage for calm, arch-topped photos
+   like a cottage window, and a hand-stitched band as the signature mark. Single light theme by choice. */
 :root {
-  --bg: #f2eadf;          /* undyed linen */
-  --surface: #fbf7f1;     /* raw cotton */
-  --sand: #e7dccb;        /* oat band */
-  --ink: #3a2a20;         /* walnut brown */
-  --muted: #7a6656;
-  --line: #ddcfbd;
-  --rose: #b4603d;        /* terracotta clay, the brand accent */
-  --rose-ink: #fbf7f1;
-  --rose-soft: #ecd5c3;   /* clay wash, photo placeholders */
-  --sage: #7d8a68;        /* sage leaf */
-  --ochre: #c4923a;       /* turmeric */
-  --moss: #5f7048;        /* "in stock" */
-  --warn: #a35d1c;
+  --bg: #f7f1e6;          /* vanilla */
+  --surface: #fdfaf4;     /* cream */
+  --sand: #e4e8da;        /* pale sage band */
+  --ink: #3e2a20;         /* dark chocolate */
+  --muted: #7b6758;       /* milk chocolate */
+  --line: #e3d7c4;        /* oat */
+  --rose: #9f6a3c;        /* caramel, the brand accent */
+  --rose-ink: #fdfaf4;
+  --rose-soft: #efdfc9;   /* caramel cream, photo placeholders */
+  --sage: #7f9170;        /* sage leaf */
+  --ochre: #d0a574;       /* light caramel, footer stitch */
+  --moss: #5d7250;        /* "in stock" */
+  --warn: #9a5b1c;
 
   --font-display: var(--f-display), "Georgia", "Times New Roman", serif;
   --font-body: var(--f-body), system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -76,13 +76,13 @@ p { margin: 0; }
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   min-height: 46px; padding: 0 22px;
-  border-radius: 999px; border: 1px solid var(--rose);
-  background: var(--rose); color: var(--rose-ink);
+  border-radius: 999px; border: 1px solid var(--ink);
+  background: var(--ink); color: var(--surface);
   font: 600 0.95rem/1 var(--font-body);
   text-decoration: none; cursor: pointer;
   transition: background .15s, color .15s, border-color .15s;
 }
-.btn:hover { background: var(--ink); border-color: var(--ink); color: var(--surface); }
+.btn:hover { background: var(--rose); border-color: var(--rose); color: var(--rose-ink); }
 .btn.ghost { background: transparent; color: var(--ink); border-color: var(--ink); }
 .btn.ghost:hover { border-color: var(--rose); color: var(--rose); background: transparent; }
 .btn.small { min-height: 36px; padding: 0 14px; font-size: 0.85rem; }
