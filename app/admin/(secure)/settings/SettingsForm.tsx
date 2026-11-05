@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Settings } from "@/lib/types";
+import { uploadPhoto } from "@/lib/uploadPhoto";
 
 type Yoco = { hasKey: boolean; testMode: boolean; hasWebhook: boolean };
 
@@ -14,6 +15,23 @@ export function SettingsForm({ settings, yoco, storage }: { settings: Settings; 
   const [secret, setSecret] = useState<string | null>(null);
   const [hookError, setHookError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [aboutPhoto, setAboutPhoto] = useState(settings.aboutPhoto);
+  const [photoBusy, setPhotoBusy] = useState(false);
+
+  async function onAboutPhoto(files: FileList | null) {
+    const file = files?.[0];
+    if (!file) return;
+    setPhotoBusy(true);
+    setError(null);
+    try {
+      setAboutPhoto(await uploadPhoto(file));
+      setMsg("Photo uploaded. Click Save settings to put it on the website.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "The photo could not be uploaded.");
+    } finally {
+      setPhotoBusy(false);
+    }
+  }
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -100,6 +118,23 @@ export function SettingsForm({ settings, yoco, storage }: { settings: Settings; 
         <h2 style={{ fontSize: "1.5rem" }}>Shop details</h2>
         <label className="field"><span>Tagline</span><input id="tagline" name="tagline" defaultValue={settings.tagline} /><small>Shown on the home page and in the footer.</small></label>
         <label className="field"><span>About Heleen</span><textarea id="about" name="about" rows={6} defaultValue={settings.about} /></label>
+        <div className="field">
+          <span>Photo of Heleen</span>
+          <small>Shown next to the About text on the home page. A portrait photo (taller than wide) works best.</small>
+          <input type="hidden" name="aboutPhoto" value={aboutPhoto} />
+          <div style={{ display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap", marginTop: 6 }}>
+            <div className="photo" style={{ width: 120, borderRadius: "60px 60px 10px 10px" }}>
+              {aboutPhoto ? <img src={aboutPhoto} alt="Heleen" /> : null}
+            </div>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <label className="btn small ghost" style={{ cursor: "pointer" }}>
+                <input id="aboutPhotoFile" type="file" accept="image/*" hidden onChange={(e) => { onAboutPhoto(e.target.files); e.target.value = ""; }} />
+                {photoBusy ? "Uploading…" : aboutPhoto ? "Change photo" : "Upload photo"}
+              </label>
+              {aboutPhoto && <button type="button" className="btn small danger" onClick={() => setAboutPhoto("")}>Remove photo</button>}
+            </div>
+          </div>
+        </div>
         <div className="three">
           <label className="field"><span>Contact email</span><input id="shopEmail" name="shopEmail" type="email" defaultValue={settings.shopEmail} /></label>
           <label className="field"><span>WhatsApp number</span><input id="whatsapp" name="whatsapp" defaultValue={settings.whatsapp} placeholder="+27 …" /></label>
@@ -115,7 +150,7 @@ export function SettingsForm({ settings, yoco, storage }: { settings: Settings; 
 
         {error && <p className="error-text" role="alert">{error}</p>}
         {msg && <p className="notice" role="status">{msg}</p>}
-        <div className="form-actions"><button className="btn" type="submit" disabled={busy}>Save settings</button></div>
+        <div className="form-actions"><button className="btn" type="submit" disabled={busy || photoBusy}>Save settings</button></div>
       </form>
     </div>
   );

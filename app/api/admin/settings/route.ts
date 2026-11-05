@@ -13,6 +13,7 @@ export async function PUT(req: Request) {
   await saveSettings({
     tagline: s(b.tagline, 200) || current.tagline,
     about: s(b.about, 3000) || current.about,
+    aboutPhoto: s(b.aboutPhoto, 500),
     shopEmail: s(b.shopEmail, 120),
     whatsapp: s(b.whatsapp, 40),
     instagram: s(b.instagram, 60),

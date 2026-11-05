@@ -3,23 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Product } from "@/lib/types";
-
-/** Shrinks phone photos to max 1600px JPEG before upload so they load fast in the shop. */
-async function shrink(file: File): Promise<Blob> {
-  try {
-    const bmp = await createImageBitmap(file);
-    const scale = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.round(bmp.width * scale);
-    canvas.height = Math.round(bmp.height * scale);
-    canvas.getContext("2d")!.drawImage(bmp, 0, 0, canvas.width, canvas.height);
-    const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/jpeg", 0.85));
-    if (blob) return blob;
-  } catch {
-    /* fall through and upload the original */
-  }
-  return file;
-}
+import { uploadPhoto } from "@/lib/uploadPhoto";
 
 export function ProductForm({ product, categories }: { product?: Product; categories: string[] }) {
   const router = useRouter();
@@ -37,14 +21,8 @@ export function ProductForm({ product, categories }: { product?: Product; catego
     setUploading((n) => n + list.length);
     for (const file of list) {
       try {
-        const blob = await shrink(file);
-        if (blob.size > 4.4 * 1024 * 1024) throw new Error(`"${file.name}" is too large. Try a smaller photo.`);
-        const fd = new FormData();
-        fd.append("file", blob, file.name.replace(/\.\w+$/, "") + ".jpg");
-        const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Upload failed.");
-        setImages((prev) => [...prev, data.url]);
+        const url = await uploadPhoto(file);
+        setImages((prev) => [...prev, url]);
       } catch (err) {
         setError(err instanceof Error ? err.message : "A photo could not be uploaded.");
       } finally {

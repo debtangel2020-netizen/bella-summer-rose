@@ -22,6 +22,8 @@ export type Product = {
 export type Settings = {
   tagline: string;
   about: string;
+  /** Photo of Heleen for the About section (URL), empty for the placeholder */
+  aboutPhoto: string;
   shopEmail: string;
   whatsapp: string;
   instagram: string;
@@ -69,6 +71,7 @@ export const DEFAULT_SETTINGS: Settings = {
   tagline: "Hand-knitted pieces, made slowly and made to be kept.",
   about:
     "Every piece in this shop is knitted by hand, one stitch at a time, by Heleen Rose. The shop is named after the people she knits for first: Bella, Summer and the Rose family. Each item is made in small numbers from yarns chosen for softness and wear, then washed, blocked and finished by hand before it is posted to you.",
+  aboutPhoto: "",
   shopEmail: "",
   whatsapp: "",
   instagram: "",

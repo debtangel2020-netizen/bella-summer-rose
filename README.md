@@ -60,7 +60,7 @@ Buy a domain (for example `bellasummerrose.co.za`), then in Vercel open **Settin
 - **One-off pieces:** set stock to 1. The shop shows "One of a kind", and it shows "Sold out" once bought.
 - **Hide a piece:** untick **Show in the shop**.
 - **New order:** **Orders** shows the delivery address, the customer's email and phone, and any note they left. Once it's posted, add the tracking number and click **Mark as posted**.
-- **Delivery prices and contact details:** **Settings**.
+- **Delivery prices, contact details and her About photo:** **Settings**. After uploading a photo, click **Save settings**.
 
 ## Notes
 - Yoco charges in Rand. Overseas customers pay by card and their bank converts the amount.

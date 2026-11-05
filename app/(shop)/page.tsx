@@ -70,11 +70,21 @@ export default async function Home() {
 
       <section className="section" id="about">
         <div className="wrap about">
-          <div>
-            <p className="hand" style={{ marginBottom: 8 }}>hello, I'm Heleen</p>
-            <h2>The hands behind the stitches</h2>
+          <div className="about-photo">
+            {settings.aboutPhoto ? (
+              <img src={settings.aboutPhoto} alt="Heleen Rose, the maker behind Bella Summer Rose Designs" />
+            ) : (
+              <div className="about-photo-empty">
+                <span className="hand">Heleen&apos;s photo</span>
+                <span>coming soon</span>
+              </div>
+            )}
           </div>
-          <p>{settings.about}</p>
+          <div className="about-text">
+            <p className="hand">hello, I&apos;m Heleen</p>
+            <h2>The hands behind the stitches</h2>
+            <p>{settings.about}</p>
+          </div>
         </div>
       </section>
 
