@@ -22,7 +22,7 @@ function assertStorage() {
   }
 }
 
-async function readJSON<T>(key: string, fallback: T): Promise<T> {
+export async function readJSON<T>(key: string, fallback: T): Promise<T> {
   assertStorage();
   if (useBlob) {
     try {
@@ -42,7 +42,7 @@ async function readJSON<T>(key: string, fallback: T): Promise<T> {
   }
 }
 
-async function writeJSON(key: string, value: unknown): Promise<void> {
+export async function writeJSON(key: string, value: unknown): Promise<void> {
   assertStorage();
   const body = JSON.stringify(value, null, 2);
   if (useBlob) {

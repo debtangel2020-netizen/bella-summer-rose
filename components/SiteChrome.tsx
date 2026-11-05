@@ -13,6 +13,7 @@ export function Header() {
         </Link>
         <nav className="nav" aria-label="Main">
           <Link href="/shop">Shop</Link>
+          <Link href="/blog">Blog</Link>
           <Link href="/#about" className="hide-sm">About</Link>
           <Link href="/#delivery" className="hide-sm">Delivery</Link>
           <CartLink />

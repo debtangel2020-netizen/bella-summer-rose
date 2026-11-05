@@ -310,3 +310,26 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--rose); outl
 .order-card .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; font-size: 0.92rem; }
 .order-card .cols p { overflow-wrap: anywhere; }
 .copyable { user-select: all; }
+
+/* ---- Blog ---- */
+.post-lead { display: grid; gap: 12px; text-decoration: none; background: var(--surface); border: 1px solid var(--line); border-radius: 999px 999px var(--radius) var(--radius); padding: clamp(56px, 8vw, 96px) clamp(20px, 6vw, 80px) 40px; text-align: center; justify-items: center; }
+.post-lead h2 { font-size: clamp(2rem, 4.4vw, 3.4rem); max-width: 22ch; }
+.post-lead p { color: var(--muted); max-width: 58ch; font-size: 1.08rem; }
+.post-lead:hover h2, .post-card:hover h3 { color: var(--rose); }
+.read-more { color: var(--rose); font-weight: 600; font-size: 0.92rem; }
+.post-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+.post-card { display: grid; gap: 10px; align-content: start; text-decoration: none; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; min-width: 0; }
+.post-card h3 { font-size: 1.45rem; }
+.post-card p { color: var(--muted); font-size: 0.95rem; }
+.post { max-width: 720px; margin: 0 auto; }
+.post-head { display: grid; gap: 14px; padding-block: 24px 28px; }
+.post-head h1 { font-size: clamp(2.3rem, 5.4vw, 3.8rem); }
+.post-summary { font-size: 1.18rem; color: var(--muted); }
+.prose { padding-top: 28px; font-size: 1.08rem; line-height: 1.75; display: grid; gap: 18px; }
+.prose h2 { font-size: 1.75rem; margin-top: 18px; }
+.prose h3 { font-size: 1.35rem; margin-top: 10px; }
+.prose ul, .prose ol { margin: 0; padding-left: 1.3em; display: grid; gap: 8px; }
+.prose li::marker { color: var(--rose); }
+.prose a { color: var(--rose); text-underline-offset: 3px; }
+.prose blockquote { margin: 0; padding: 4px 0 4px 20px; border-left: 3px solid var(--sage); font-family: var(--font-display); font-size: 1.3rem; font-style: italic; }
+.post-cta { margin-top: 48px; padding: 32px; background: var(--sand); border-radius: var(--radius); display: grid; gap: 10px; justify-items: start; }

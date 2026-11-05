@@ -2,11 +2,13 @@ import Link from "next/link";
 import { getPublishedProducts, getSettings } from "@/lib/store";
 import { ProductGrid } from "@/components/ProductCard";
 import { rand } from "@/lib/money";
+import { formatDate, getPublishedPosts } from "@/lib/blog";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [products, settings] = await Promise.all([getPublishedProducts(), getSettings()]);
+  const [products, settings, posts] = await Promise.all([getPublishedProducts(), getSettings(), getPublishedPosts().catch(() => [])]);
+  const latestPosts = posts.slice(0, 3);
   const featured = products.filter((p) => p.featured);
   const showcase = (featured.length ? featured : products).slice(0, 6);
   const heroProduct = showcase.find((p) => p.images.length > 0);
@@ -87,6 +89,26 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      {latestPosts.length > 0 && (
+        <section className="section">
+          <div className="wrap">
+            <div className="section-head">
+              <h2>From the blog</h2>
+              <Link href="/blog">All posts →</Link>
+            </div>
+            <div className="post-grid">
+              {latestPosts.map((p) => (
+                <Link key={p.slug} href={`/blog/${p.slug}`} className="post-card">
+                  <span className="label">{[p.category, formatDate(p.date)].filter(Boolean).join(" · ")}</span>
+                  <h3>{p.title}</h3>
+                  {p.summary && <p>{p.summary}</p>}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="section" id="delivery">
         <div className="wrap">
