@@ -16,7 +16,7 @@ export default async function Home() {
       <section className="hero">
         <div className="wrap">
           <div>
-            <p className="label" style={{ color: "var(--rose)" }}>Knitted by hand by Heleen Rose</p>
+            <p className="hand">made with love by Heleen Rose</p>
             <h1 style={{ marginTop: 14 }}>
               Made slowly, <em>stitch by stitch,</em> to be kept.
             </h1>
@@ -56,9 +56,9 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="section">
+      <section className="band">
         <div className="wrap">
-          <div className="section-head"><h2>How each piece is made</h2></div>
+          <div className="section-head"><h2>How each piece is made</h2><p className="hand">no machines, just two needles</p></div>
           <ol className="process">
             <li><h3>Choosing the yarn</h3><p>Soft, hard-wearing fibres picked for how they feel against skin and how they wash.</p></li>
             <li><h3>Casting on</h3><p>Every piece starts as a single row of loops on the needle, knitted by hand.</p></li>
@@ -71,7 +71,7 @@ export default async function Home() {
       <section className="section" id="about">
         <div className="wrap about">
           <div>
-            <p className="label" style={{ marginBottom: 12 }}>About</p>
+            <p className="hand" style={{ marginBottom: 8 }}>hello, I'm Heleen</p>
             <h2>The hands behind the stitches</h2>
           </div>
           <p>{settings.about}</p>

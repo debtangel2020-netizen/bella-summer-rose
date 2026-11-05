@@ -9,7 +9,7 @@ export function Header() {
       <div className="wrap">
         <Link href="/" className="wordmark" aria-label="Bella Summer Rose Designs, home">
           <b>Bella Summer Rose</b>
-          <span>Designs · Hand-knitted</span>
+          <span>hand-knitted designs</span>
         </Link>
         <nav className="nav" aria-label="Main">
           <Link href="/shop">Shop</Link>
@@ -26,7 +26,7 @@ export function Footer({ settings }: { settings: Settings }) {
   const year = new Date().getFullYear();
   return (
     <footer className="site-footer">
-      <div className="stitch muted" aria-hidden="true" />
+      <div className="stitch" aria-hidden="true" />
       <div className="wrap">
         <div>
           <h3>Bella Summer Rose Designs</h3>
