@@ -6,10 +6,12 @@ import { randomUUID } from "crypto";
 import { DEFAULT_SETTINGS, type Order, type Product, type Settings } from "./types";
 
 /**
- * Storage: Vercel Blob in production (BLOB_READ_WRITE_TOKEN set),
- * local files in .data/ and public/uploads/ when running on your own computer.
+ * Storage: Vercel Blob in production (connected store: BLOB_STORE_ID via OIDC,
+ * or an older BLOB_READ_WRITE_TOKEN), local files in .data/ and public/uploads/
+ * when running on your own computer.
  */
-const useBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+export const blobConnected = Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID);
+const useBlob = blobConnected;
 const LOCAL_DIR = path.join(process.cwd(), ".data");
 
 function assertStorage() {

@@ -25,7 +25,7 @@ You need three free accounts: **GitHub**, **Vercel** and **Yoco** (Yoco needs yo
 
 ### 3. Connect storage for photos and products
 1. In the Vercel project, open **Storage → Create Database → Blob**, then **Create** and **Connect** it to the project.
-   Vercel adds `BLOB_READ_WRITE_TOKEN` for you.
+   Vercel connects it for you (you will see `BLOB_STORE_ID` in the environment variables).
 
 ### 4. Add the passwords and the Yoco key
 In the project, open **Settings → Environment Variables** and add:
