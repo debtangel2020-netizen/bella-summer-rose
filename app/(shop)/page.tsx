@@ -34,7 +34,7 @@ export default async function Home() {
                 );
               })}
             </h1>
-            <p className="lede">{showTagline ? `${settings.tagline} ` : ""}Each piece is made by hand in South Africa and posted to you anywhere in the world.</p>
+            <p className="lede">{showTagline ? settings.tagline : "Each piece is made by hand in South Africa and posted to you anywhere in the world."}</p>
             <p className="crafts">Knit <span aria-hidden="true">·</span> Woven <span aria-hidden="true">·</span> Braided</p>
             <div className="actions">
               <Link href="/shop" className="btn">Shop the collection</Link>
