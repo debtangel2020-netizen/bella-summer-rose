@@ -9,6 +9,10 @@ export const dynamic = "force-dynamic";
 export default async function Home() {
   const [products, settings, posts] = await Promise.all([getPublishedProducts(), getSettings(), getPublishedPosts().catch(() => [])]);
   const latestPosts = posts.slice(0, 3);
+  const headlineLines = settings.headline
+    .split(/\r?\n|\s+[-–—]\s+/)
+    .map((l) => l.trim())
+    .filter(Boolean);
   const featured = products.filter((p) => p.featured);
   const showcase = (featured.length ? featured : products).slice(0, 6);
 
@@ -19,9 +23,16 @@ export default async function Home() {
           <div>
             <p className="hand">handmade with love by Heleen Rose</p>
             <h1 style={{ marginTop: 14 }}>
-              Made slowly, <em>stitch by stitch,</em> to be kept.
+              {headlineLines.map((line, i) => {
+                const accent = headlineLines.length > 1 && i > 0 && i < Math.max(2, headlineLines.length - 1);
+                return (
+                  <span className="line" key={i}>
+                    {accent ? <em>{line}</em> : line}{" "}
+                  </span>
+                );
+              })}
             </h1>
-            <p className="lede">{settings.tagline} Each piece is knitted in South Africa and posted to you anywhere in the world.</p>
+            <p className="lede">{settings.tagline} Each piece is made by hand in South Africa and posted to you anywhere in the world.</p>
             <p className="crafts">Knit <span aria-hidden="true">·</span> Woven <span aria-hidden="true">·</span> Braided</p>
             <div className="actions">
               <Link href="/shop" className="btn">Shop the collection</Link>

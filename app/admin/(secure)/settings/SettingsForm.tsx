@@ -116,7 +116,12 @@ export function SettingsForm({ settings, yoco, storage }: { settings: Settings; 
 
       <form className="admin-form" onSubmit={onSubmit}>
         <h2 style={{ fontSize: "1.5rem" }}>Shop details</h2>
-        <label className="field"><span>Tagline</span><input id="tagline" name="tagline" defaultValue={settings.tagline} /><small>Shown on the home page and in the footer.</small></label>
+        <label className="field">
+          <span>Headline</span>
+          <textarea id="headline" name="headline" rows={3} defaultValue={settings.headline} style={{ minHeight: 0 }} />
+          <small>The big words at the top of the home page. Put each phrase on its own line; the middle line shows in italic caramel.</small>
+        </label>
+        <label className="field"><span>Tagline</span><input id="tagline" name="tagline" defaultValue={settings.tagline} /><small>One short sentence shown under the headline and in the footer.</small></label>
         <label className="field"><span>About Heleen</span><textarea id="about" name="about" rows={6} defaultValue={settings.about} /></label>
         <div className="field">
           <span>Photo of Heleen</span>

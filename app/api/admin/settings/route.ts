@@ -11,6 +11,7 @@ export async function PUT(req: Request) {
   const current = await getSettings({ fresh: true });
   const s = (v: unknown, n: number) => String(v ?? "").trim().slice(0, n);
   await saveSettings({
+    headline: s(b.headline, 200) || current.headline,
     tagline: s(b.tagline, 200) || current.tagline,
     about: s(b.about, 3000) || current.about,
     aboutPhoto: s(b.aboutPhoto, 500),

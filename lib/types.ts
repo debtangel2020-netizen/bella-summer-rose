@@ -20,6 +20,8 @@ export type Product = {
 };
 
 export type Settings = {
+  /** Big home page headline; one phrase per line. The middle line is shown in italic caramel. */
+  headline: string;
   tagline: string;
   about: string;
   /** Photo of Heleen for the About section (URL), empty for the placeholder */
@@ -68,6 +70,7 @@ export type Order = {
 };
 
 export const DEFAULT_SETTINGS: Settings = {
+  headline: "Woven with intention,\nknit by hand,\nmade to wander.",
   tagline: "Hand-knitted pieces, made slowly and made to be kept.",
   about:
     "Every piece in this shop is knitted by hand, one stitch at a time, by Heleen Rose. The shop is named after the people she knits for first: Bella, Summer and the Rose family. Each item is made in small numbers from yarns chosen for softness and wear, then washed, blocked and finished by hand before it is posted to you.",
