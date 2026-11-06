@@ -15,7 +15,12 @@ const hand = Caveat({ subsets: ["latin"], variable: "--f-hand", display: "swap" 
 
 export const metadata: Metadata = {
   title: { default: "Bella Summer Rose Designs", template: "%s · Bella Summer Rose Designs" },
-  description: "Hand-knitted pieces by Heleen Rose. Made in South Africa, posted worldwide.",
+  description: "Handmade with love by Heleen Rose: knitted, woven and braided pieces, made in South Africa and posted worldwide.",
+  metadataBase: new URL(process.env.SITE_URL || "https://www.capeluxecollective.shop"),
+  openGraph: {
+    siteName: "Bella Summer Rose Designs",
+    images: [{ url: "/brand/bella-summer-rose-logo.jpg", width: 1600, height: 1600 }],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

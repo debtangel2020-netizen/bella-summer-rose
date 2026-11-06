@@ -7,9 +7,12 @@ export function Header() {
   return (
     <header className="site-header">
       <div className="wrap">
-        <Link href="/" className="wordmark" aria-label="Bella Summer Rose Designs, home">
-          <b>Bella Summer Rose</b>
-          <span>hand-knitted designs</span>
+        <Link href="/" className="brand" aria-label="Bella Summer Rose Designs, home">
+          <img src="/brand/emblem.png" alt="" width={48} height={48} className="emblem" />
+          <span className="wordmark">
+            <b>Bella Summer Rose</b>
+            <span>handmade with love</span>
+          </span>
         </Link>
         <nav className="nav" aria-label="Main">
           <Link href="/shop">Shop</Link>

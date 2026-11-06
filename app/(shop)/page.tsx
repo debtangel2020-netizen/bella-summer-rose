@@ -11,31 +11,31 @@ export default async function Home() {
   const latestPosts = posts.slice(0, 3);
   const featured = products.filter((p) => p.featured);
   const showcase = (featured.length ? featured : products).slice(0, 6);
-  const heroProduct = showcase.find((p) => p.images.length > 0);
 
   return (
     <>
       <section className="hero">
         <div className="wrap">
           <div>
-            <p className="hand">made with love by Heleen Rose</p>
+            <p className="hand">handmade with love by Heleen Rose</p>
             <h1 style={{ marginTop: 14 }}>
               Made slowly, <em>stitch by stitch,</em> to be kept.
             </h1>
             <p className="lede">{settings.tagline} Each piece is knitted in South Africa and posted to you anywhere in the world.</p>
+            <p className="crafts">Knit <span aria-hidden="true">·</span> Woven <span aria-hidden="true">·</span> Braided</p>
             <div className="actions">
               <Link href="/shop" className="btn">Shop the collection</Link>
               <Link href="/#about" className="btn ghost">Meet the maker</Link>
             </div>
           </div>
-          {heroProduct ? (
-            <Link href={`/product/${heroProduct.slug}`} className="hero-art">
-              <img src={heroProduct.images[0]} alt={heroProduct.name} />
-              <span className="tag">{heroProduct.name} · {rand(heroProduct.price)}</span>
-            </Link>
-          ) : (
-            <div className="hero-art empty" aria-hidden="true"><div className="yarn" /></div>
-          )}
+          <div className="hero-brand">
+            <img
+              src="/brand/bella-summer-rose-logo.jpg"
+              alt="Bella Summer Rose Designs: a knitted rose with a golden bell above two little girls holding hands. Handmade with love. Knit, woven, braided."
+              width={1600}
+              height={1600}
+            />
+          </div>
         </div>
       </section>
 
