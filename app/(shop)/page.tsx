@@ -32,8 +32,8 @@ export default async function Home() {
             <img
               src="/brand/bella-summer-rose-logo.jpg"
               alt="Bella Summer Rose Designs: a knitted rose with a golden bell above two little girls holding hands. Handmade with love. Knit, woven, braided."
-              width={1600}
-              height={1600}
+              width={1408}
+              height={1408}
             />
           </div>
         </div>

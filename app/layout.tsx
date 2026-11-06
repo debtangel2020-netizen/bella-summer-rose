@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.SITE_URL || "https://www.capeluxecollective.shop"),
   openGraph: {
     siteName: "Bella Summer Rose Designs",
-    images: [{ url: "/brand/bella-summer-rose-logo.jpg", width: 1600, height: 1600 }],
+    images: [{ url: "/brand/bella-summer-rose-logo.jpg", width: 1408, height: 1408 }],
   },
 };
 
