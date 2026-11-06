@@ -10,7 +10,7 @@ export async function PUT(req: Request, { params }: Ctx) {
   const denied = await requireAdmin();
   if (denied) return denied;
   const { slug } = await params;
-  const existing = await getPost(slug);
+  const existing = await getPost(slug, { fresh: true });
   if (!existing) return Response.json({ error: "Post not found." }, { status: 404 });
   const parsed = parsePostInput(await req.json().catch(() => ({})));
   if (!parsed.ok) return Response.json({ error: parsed.error }, { status: 400 });

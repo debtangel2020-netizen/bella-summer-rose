@@ -2,7 +2,7 @@ import Link from "next/link";
 import { formatDate, getAllPosts } from "@/lib/blog";
 
 export default async function AdminBlog() {
-  const posts = await getAllPosts();
+  const posts = await getAllPosts({ fresh: true });
   const today = new Date().toISOString().slice(0, 10);
   return (
     <>

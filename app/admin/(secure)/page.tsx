@@ -3,7 +3,7 @@ import { getProducts } from "@/lib/store";
 import { rand } from "@/lib/money";
 
 export default async function AdminProducts() {
-  const products = await getProducts();
+  const products = await getProducts({ fresh: true });
   return (
     <>
       <div className="section-head" style={{ marginBottom: 16 }}>

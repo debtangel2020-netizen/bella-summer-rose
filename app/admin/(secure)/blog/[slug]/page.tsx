@@ -5,7 +5,7 @@ import { PostForm } from "../PostForm";
 
 export default async function EditPost({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = await getPost(slug);
+  const post = await getPost(slug, { fresh: true });
   if (!post) notFound();
   return (
     <>

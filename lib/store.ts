@@ -22,14 +22,48 @@ function assertStorage() {
   }
 }
 
-export async function readJSON<T>(key: string, fallback: T): Promise<T> {
+/*
+ * Why two copies: Vercel Blob caches an overwritten file for up to ~60 seconds, so reading
+ * the main file right after a save can return the previous version. Every save therefore
+ * also writes a brand-new, never-overwritten "version" file, which is readable immediately.
+ *  - Public pages read the main file (fast, cheap; may lag a save by up to a minute).
+ *  - The admin and every save read the newest version file ("fresh"), so changes made in
+ *    quick succession never overwrite each other.
+ */
+const KEEP_VERSIONS = 5;
+const versionPrefix = (key: string) => `${key}.versions/`;
+const urlCache = new Map<string, string>();
+
+async function fetchJSON<T>(url: string): Promise<T | undefined> {
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) return undefined;
+  return (await res.json()) as T;
+}
+
+async function newestVersionUrl(key: string): Promise<string | undefined> {
+  const page = await list({ prefix: versionPrefix(key), limit: 1000 });
+  const newest = page.blobs.sort((a, b) => b.pathname.localeCompare(a.pathname))[0];
+  return newest?.url;
+}
+
+export async function readJSON<T>(key: string, fallback: T, opts: { fresh?: boolean } = {}): Promise<T> {
   assertStorage();
   if (useBlob) {
     try {
-      const meta = await head(key);
-      const res = await fetch(`${meta.url}?v=${Date.now()}`, { cache: "no-store" });
-      if (!res.ok) return fallback;
-      return (await res.json()) as T;
+      if (opts.fresh) {
+        const url = await newestVersionUrl(key);
+        if (url) {
+          const data = await fetchJSON<T>(url);
+          if (data !== undefined) return data;
+        }
+      }
+      let url = urlCache.get(key);
+      if (!url) {
+        url = (await head(key)).url;
+        urlCache.set(key, url);
+      }
+      const data = await fetchJSON<T>(url);
+      return data === undefined ? fallback : data;
     } catch {
       return fallback;
     }
@@ -42,17 +76,38 @@ export async function readJSON<T>(key: string, fallback: T): Promise<T> {
   }
 }
 
-export async function writeJSON(key: string, value: unknown): Promise<void> {
+export async function writeJSON(key: string, value: unknown, opts: { versioned?: boolean } = {}): Promise<void> {
   assertStorage();
   const body = JSON.stringify(value, null, 2);
+  if (useBlob && opts.versioned === false) {
+    await put(key, body, { access: "public", addRandomSuffix: false, allowOverwrite: true, contentType: "application/json", cacheControlMaxAge: 60 });
+    return;
+  }
   if (useBlob) {
-    await put(key, body, {
+    const stamp = String(Date.now()).padStart(15, "0");
+    await put(`${versionPrefix(key)}${stamp}-${randomUUID().slice(0, 8)}.json`, body, {
+      access: "public",
+      addRandomSuffix: false,
+      contentType: "application/json",
+    });
+    const main = await put(key, body, {
       access: "public",
       addRandomSuffix: false,
       allowOverwrite: true,
       contentType: "application/json",
       cacheControlMaxAge: 60,
     });
+    urlCache.set(key, main.url);
+    try {
+      const page = await list({ prefix: versionPrefix(key), limit: 1000 });
+      const old = page.blobs
+        .sort((a, b) => b.pathname.localeCompare(a.pathname))
+        .slice(KEEP_VERSIONS)
+        .map((b) => b.url);
+      if (old.length) await del(old);
+    } catch {
+      /* tidying old versions is optional */
+    }
     return;
   }
   const file = path.join(LOCAL_DIR, key);
@@ -62,8 +117,9 @@ export async function writeJSON(key: string, value: unknown): Promise<void> {
 
 /* ---------- Products ---------- */
 
-export async function getProducts(): Promise<Product[]> {
-  const items = await readJSON<Product[]>("data/products.json", []);
+/** fresh: true reads the newest saved version (use in the admin and before any save). */
+export async function getProducts(opts: { fresh?: boolean } = {}): Promise<Product[]> {
+  const items = await readJSON<Product[]>("data/products.json", [], opts);
   return items.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
@@ -76,7 +132,7 @@ export async function getProductBySlug(slug: string): Promise<Product | undefine
 }
 
 export async function getProduct(id: string): Promise<Product | undefined> {
-  return (await getProducts()).find((p) => p.id === id);
+  return (await getProducts({ fresh: true })).find((p) => p.id === id);
 }
 
 export function slugify(text: string): string {
@@ -92,7 +148,7 @@ export function slugify(text: string): string {
 export async function saveProduct(
   input: Omit<Product, "id" | "slug" | "createdAt" | "updatedAt"> & { id?: string }
 ): Promise<Product> {
-  const all = await getProducts();
+  const all = await getProducts({ fresh: true });
   const now = new Date().toISOString();
   const existing = input.id ? all.find((p) => p.id === input.id) : undefined;
 
@@ -116,12 +172,12 @@ export async function saveProduct(
 }
 
 export async function deleteProduct(id: string): Promise<void> {
-  const all = await getProducts();
+  const all = await getProducts({ fresh: true });
   await writeJSON("data/products.json", all.filter((p) => p.id !== id));
 }
 
 export async function adjustStock(changes: { productId: string; qty: number }[]): Promise<void> {
-  const all = await getProducts();
+  const all = await getProducts({ fresh: true });
   for (const c of changes) {
     const p = all.find((x) => x.id === c.productId);
     if (p) p.stock = Math.max(0, p.stock - c.qty);
@@ -131,8 +187,8 @@ export async function adjustStock(changes: { productId: string; qty: number }[])
 
 /* ---------- Settings ---------- */
 
-export async function getSettings(): Promise<Settings> {
-  const saved = await readJSON<Partial<Settings>>("data/settings.json", {});
+export async function getSettings(opts: { fresh?: boolean } = {}): Promise<Settings> {
+  const saved = await readJSON<Partial<Settings>>("data/settings.json", {}, opts);
   return { ...DEFAULT_SETTINGS, ...saved };
 }
 
@@ -143,7 +199,7 @@ export async function saveSettings(s: Settings): Promise<void> {
 /* ---------- Orders ---------- */
 
 export async function saveOrder(order: Order): Promise<void> {
-  await writeJSON(`orders/${order.id}.json`, order);
+  await writeJSON(`orders/${order.id}.json`, order, { versioned: false });
 }
 
 export async function getOrder(id: string): Promise<Order | undefined> {
@@ -158,7 +214,7 @@ export async function getOrders(): Promise<Order[]> {
     let cursor: string | undefined;
     do {
       const page = await list({ prefix: "orders/", cursor, limit: 1000 });
-      ids.push(...page.blobs.map((b) => b.pathname.replace(/^orders\//, "").replace(/\.json$/, "")));
+      ids.push(...page.blobs.map((b) => b.pathname).filter((p) => /^orders\/[a-f0-9-]{36}\.json$/.test(p)).map((p) => p.slice(7, -5)));
       cursor = page.hasMore ? page.cursor : undefined;
     } while (cursor);
   } else {

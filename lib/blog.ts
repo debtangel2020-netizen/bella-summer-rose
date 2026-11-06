@@ -20,14 +20,14 @@ type BlogStore = { overrides: Record<string, Override>; own: BlogPost[] };
 
 const KEY = "data/blog.json";
 
-async function load(): Promise<BlogStore> {
-  const s = await readJSON<Partial<BlogStore>>(KEY, {});
+async function load(fresh = false): Promise<BlogStore> {
+  const s = await readJSON<Partial<BlogStore>>(KEY, {}, { fresh });
   return { overrides: s.overrides ?? {}, own: s.own ?? [] };
 }
 
 /** All posts, newest first, including hidden ones (for the admin). */
-export async function getAllPosts(): Promise<BlogPost[]> {
-  const store = await load().catch(() => ({ overrides: {}, own: [] }) as BlogStore);
+export async function getAllPosts(opts: { fresh?: boolean } = {}): Promise<BlogPost[]> {
+  const store = await load(Boolean(opts.fresh)).catch(() => ({ overrides: {}, own: [] }) as BlogStore);
   const auto = (bundled as BlogPost[]).map((p) => {
     const o = store.overrides[p.slug];
     return o ? { ...p, ...o, source: "auto" as const, edited: true } : { ...p, source: "auto" as const };
@@ -41,13 +41,13 @@ export async function getPublishedPosts(): Promise<BlogPost[]> {
   return (await getAllPosts()).filter((p) => !p.hidden && p.date <= today);
 }
 
-export async function getPost(slug: string): Promise<BlogPost | undefined> {
-  return (await getAllPosts()).find((p) => p.slug === slug);
+export async function getPost(slug: string, opts: { fresh?: boolean } = {}): Promise<BlogPost | undefined> {
+  return (await getAllPosts(opts)).find((p) => p.slug === slug);
 }
 
 export async function savePost(slug: string | null, input: Omit<BlogPost, "slug" | "source" | "edited">): Promise<BlogPost> {
-  const store = await load();
-  const all = await getAllPosts();
+  const store = await load(true);
+  const all = await getAllPosts({ fresh: true });
   const existing = slug ? all.find((p) => p.slug === slug) : undefined;
 
   if (existing?.source === "auto") {
@@ -84,7 +84,7 @@ export async function savePost(slug: string | null, input: Omit<BlogPost, "slug"
 
 /** Heleen's own posts are deleted; scheduled posts are hidden (they live in the code). */
 export async function removePost(slug: string): Promise<void> {
-  const store = await load();
+  const store = await load(true);
   if (store.own.some((p) => p.slug === slug)) {
     store.own = store.own.filter((p) => p.slug !== slug);
   } else {

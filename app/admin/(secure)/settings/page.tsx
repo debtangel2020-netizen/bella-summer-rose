@@ -2,7 +2,7 @@ import { blobConnected, getSettings } from "@/lib/store";
 import { SettingsForm } from "./SettingsForm";
 
 export default async function AdminSettings() {
-  const settings = await getSettings();
+  const settings = await getSettings({ fresh: true });
   const yoco = {
     hasKey: Boolean(process.env.YOCO_SECRET_KEY),
     testMode: (process.env.YOCO_SECRET_KEY ?? "").startsWith("sk_test"),

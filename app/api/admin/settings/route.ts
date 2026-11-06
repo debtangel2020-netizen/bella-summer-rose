@@ -8,7 +8,7 @@ export async function PUT(req: Request) {
   const denied = await requireAdmin();
   if (denied) return denied;
   const b = (await req.json().catch(() => ({}))) as Record<string, string>;
-  const current = await getSettings();
+  const current = await getSettings({ fresh: true });
   const s = (v: unknown, n: number) => String(v ?? "").trim().slice(0, n);
   await saveSettings({
     tagline: s(b.tagline, 200) || current.tagline,
