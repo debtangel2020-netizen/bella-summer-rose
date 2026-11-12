@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Product } from "@/lib/types";
 import { rand } from "@/lib/money";
+import { hasVariants, inStockCount, isAvailable } from "@/lib/variants";
 
 export function ProductCard({ product }: { product: Product }) {
   const img = product.images[0];
@@ -8,9 +9,11 @@ export function ProductCard({ product }: { product: Product }) {
     <Link href={`/product/${product.slug}`} className="card">
       <div className="ph">
         {img ? <img src={img} alt={product.name} loading="lazy" /> : null}
-        {product.stock <= 0 ? (
+        {!isAvailable(product) ? (
           <span className="badge sold">Sold out</span>
-        ) : product.stock === 1 ? (
+        ) : hasVariants(product) ? (
+          product.variants.length > 1 ? <span className="badge">{product.variants.length} colours</span> : null
+        ) : inStockCount(product) === 1 ? (
           <span className="badge">One of a kind</span>
         ) : null}
       </div>

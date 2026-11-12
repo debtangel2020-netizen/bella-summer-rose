@@ -42,7 +42,13 @@ export function OrderCard({ order }: { order: Order }) {
       <div className="cols">
         <div>
           <p className="label" style={{ marginBottom: 6 }}>Items</p>
-          {order.items.map((i) => <p key={i.productId}>{i.qty} × {i.name} — {rand(i.price * i.qty)}</p>)}
+          {order.items.map((i) => (
+            <p key={`${i.productId}:${i.variantId ?? ""}`}>
+              {i.qty} × {i.name}
+              {i.variant && <> · <strong>{i.variant}</strong></>}
+              {i.madeToOrder && <span className="pill pending" style={{ marginLeft: 6 }}>Make to order</span>} — {rand(i.price * i.qty)}
+            </p>
+          ))}
           <p style={{ color: "var(--muted)" }}>Delivery {order.shipping ? rand(order.shipping) : "free"}</p>
           <p><strong>Total {rand(order.total)}</strong></p>
         </div>

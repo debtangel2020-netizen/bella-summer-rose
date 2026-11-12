@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getPublishedProducts } from "@/lib/store";
 import { ProductGrid } from "@/components/ProductCard";
+import { isAvailable } from "@/lib/variants";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Shop" };
@@ -11,7 +12,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   const products = await getPublishedProducts();
   const categories = Array.from(new Set(products.map((p) => p.category).filter(Boolean))).sort();
   const shown = c ? products.filter((p) => p.category === c) : products;
-  const inStockFirst = [...shown].sort((a, b) => Number(b.stock > 0) - Number(a.stock > 0));
+  const inStockFirst = [...shown].sort((a, b) => Number(isAvailable(b)) - Number(isAvailable(a)));
 
   return (
     <div className="wrap">

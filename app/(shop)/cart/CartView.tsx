@@ -31,7 +31,7 @@ export function CartView({ shipping, message }: { shipping: Shipping; message: s
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          items: lines.map((l) => ({ productId: l.productId, qty: l.qty })),
+          items: lines.map((l) => ({ productId: l.productId, variantId: l.variantId, qty: l.qty })),
           customer: { name: get("name"), email: get("email"), phone: get("phone") },
           address: {
             line1: get("line1"),
@@ -76,22 +76,28 @@ export function CartView({ shipping, message }: { shipping: Shipping; message: s
         {message && <p className="notice" style={{ marginBottom: 20 }}>{message}</p>}
         <div className="cart-items">
           {lines.map((l) => (
-            <div className="cart-item" key={l.productId}>
+            <div className="cart-item" key={l.key}>
               {l.image ? <img src={l.image} alt="" /> : <div className="noimg" />}
               <div className="info">
                 <Link href={`/product/${l.slug}`} style={{ fontFamily: "var(--font-display)", fontSize: "1.2rem", textDecoration: "none" }}>
                   {l.name}
                 </Link>
+                {l.variant && (
+                  <span className="cart-variant">
+                    Colour: <strong>{l.variant}</strong>
+                    {l.madeToOrder ? ` · made to order, ready in ${l.makingTime ?? "about 2 weeks"}` : " · in stock"}
+                  </span>
+                )}
                 {l.maxQty > 1 ? (
                   <div className="qty" role="group" aria-label={`Quantity of ${l.name}`} style={{ justifySelf: "start" }}>
-                    <button type="button" onClick={() => setQty(l.productId, l.qty - 1)} aria-label="One fewer">−</button>
+                    <button type="button" onClick={() => setQty(l.key, l.qty - 1)} aria-label="One fewer">−</button>
                     <output>{l.qty}</output>
-                    <button type="button" onClick={() => setQty(l.productId, l.qty + 1)} aria-label="One more">+</button>
+                    <button type="button" onClick={() => setQty(l.key, l.qty + 1)} aria-label="One more">+</button>
                   </div>
                 ) : (
-                  <span className="label">One of a kind</span>
+                  <span className="label">{l.madeToOrder ? "Qty 1" : "One of a kind"}</span>
                 )}
-                <button type="button" className="linkbtn" onClick={() => remove(l.productId)}>Remove</button>
+                <button type="button" className="linkbtn" onClick={() => remove(l.key)}>Remove</button>
               </div>
               <span style={{ fontVariantNumeric: "tabular-nums" }}>{rand(l.price * l.qty)}</span>
             </div>

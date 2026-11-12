@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Product } from "@/lib/types";
+import type { Product, Variant } from "@/lib/types";
 import { uploadPhoto } from "@/lib/uploadPhoto";
 
 export function ProductForm({ product, categories }: { product?: Product; categories: string[] }) {
@@ -13,6 +13,10 @@ export function ProductForm({ product, categories }: { product?: Product; catego
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [variants, setVariants] = useState<Variant[]>(product?.variants ?? []);
+  const newId = () => Math.random().toString(36).slice(2, 10);
+  const updateVariant = (id: string, patch: Partial<Variant>) =>
+    setVariants((prev) => prev.map((v) => (v.id === id ? { ...v, ...patch } : v)));
 
   async function onFiles(files: FileList | null) {
     if (!files?.length) return;
@@ -57,6 +61,8 @@ export function ProductForm({ product, categories }: { product?: Product; catego
       size: String(f.get("size") ?? ""),
       care: String(f.get("care") ?? ""),
       hours: String(f.get("hours") ?? ""),
+      variants: variants.filter((v) => v.name.trim()),
+      makingTime: String(f.get("makingTime") ?? ""),
       featured: f.get("featured") === "on",
       published: f.get("published") === "on",
       images,
@@ -121,7 +127,11 @@ export function ProductForm({ product, categories }: { product?: Product; catego
 
       <div className="three">
         <label className="field"><span>Price (Rand)</span><input id="price" name="price" inputMode="decimal" required defaultValue={product ? (product.price / 100).toString() : ""} placeholder="450" /></label>
-        <label className="field"><span>How many in stock</span><input id="stock" name="stock" type="number" min={0} required defaultValue={product?.stock ?? 1} /></label>
+        {variants.length ? (
+          <div className="field"><span>How many in stock</span><small style={{ paddingTop: 10 }}>Set per colour below.</small></div>
+        ) : (
+          <label className="field"><span>How many in stock</span><input id="stock" name="stock" type="number" min={0} required defaultValue={product?.stock ?? 1} /></label>
+        )}
         <label className="field">
           <span>Category</span>
           <input id="category" name="category" list="cat-list" defaultValue={product?.category} placeholder="e.g. Baby, Scarves, Blankets" />
@@ -139,6 +149,55 @@ export function ProductForm({ product, categories }: { product?: Product; catego
         <label className="field"><span>Care instructions</span><input id="care" name="care" defaultValue={product?.care} placeholder="e.g. Hand wash cold, dry flat" /></label>
         <label className="field"><span>Hours on the needles (optional)</span><input id="hours" name="hours" type="number" min={0} defaultValue={product?.hours ?? ""} placeholder="e.g. 14" /></label>
       </div>
+
+      <section className="field">
+        <span>Colours</span>
+        <small>
+          Optional. Add each colour customers can choose. Pick <strong>In stock</strong> for pieces already made (with how many), or{" "}
+          <strong>Made to order</strong> for colours you knit when someone orders. Leave empty if there is no colour choice.
+        </small>
+        {variants.length > 0 && (
+          <div className="variant-rows" style={{ marginTop: 8 }}>
+            {variants.map((v, i) => (
+              <div className="variant-row" key={v.id}>
+                <label className="field">
+                  <span>Colour name</span>
+                  <input id={`variant-name-${v.id}`} value={v.name} onChange={(e) => updateVariant(v.id, { name: e.target.value })} placeholder={i === 0 ? "e.g. Sage" : "e.g. Caramel"} />
+                </label>
+                <label className="field">
+                  <span>Availability</span>
+                  <select id={`variant-mode-${v.id}`} value={v.mode} onChange={(e) => updateVariant(v.id, { mode: e.target.value === "order" ? "order" : "stock" })}>
+                    <option value="stock">In stock</option>
+                    <option value="order">Made to order</option>
+                  </select>
+                </label>
+                <label className="field">
+                  <span>How many</span>
+                  {v.mode === "stock" ? (
+                    <input id={`variant-stock-${v.id}`} type="number" min={0} value={v.stock} onChange={(e) => updateVariant(v.id, { stock: Math.max(0, Number(e.target.value) || 0) })} />
+                  ) : (
+                    <input id={`variant-stock-${v.id}`} value="—" disabled aria-label="Not needed for made to order" />
+                  )}
+                </label>
+                <button type="button" className="btn small danger" onClick={() => setVariants((prev) => prev.filter((x) => x.id !== v.id))} aria-label={`Remove colour ${v.name || i + 1}`}>
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        <div style={{ marginTop: 8 }}>
+          <button type="button" className="btn small ghost" onClick={() => setVariants((prev) => [...prev, { id: newId(), name: "", mode: "stock", stock: 1 }])}>
+            + Add a colour
+          </button>
+        </div>
+      </section>
+
+      <label className="field">
+        <span>Making time for made-to-order colours</span>
+        <input id="makingTime" name="makingTime" defaultValue={product?.makingTime} placeholder="about 2 weeks" />
+        <small>Shown to customers as &ldquo;Ready to post in …&rdquo;. Leave empty for &ldquo;about 2 weeks&rdquo;.</small>
+      </label>
 
       <label className="check"><input id="published" name="published" type="checkbox" defaultChecked={product?.published ?? true} /><span><strong>Show in the shop</strong><br /><small style={{ color: "var(--muted)" }}>Untick to hide it while you work on it.</small></span></label>
       <label className="check"><input id="featured" name="featured" type="checkbox" defaultChecked={product?.featured ?? false} /><span><strong>Feature on the home page</strong></span></label>

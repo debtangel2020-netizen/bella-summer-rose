@@ -3,7 +3,13 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 export type CartLine = {
+  /** Unique per product + colour */
+  key: string;
   productId: string;
+  variantId?: string;
+  variant?: string;
+  madeToOrder?: boolean;
+  makingTime?: string;
   slug: string;
   name: string;
   price: number;
@@ -16,14 +22,15 @@ type CartCtx = {
   lines: CartLine[];
   count: number;
   ready: boolean;
-  add: (line: Omit<CartLine, "qty">, qty: number) => void;
-  setQty: (productId: string, qty: number) => void;
-  remove: (productId: string) => void;
+  add: (line: Omit<CartLine, "qty" | "key">, qty: number) => void;
+  setQty: (key: string, qty: number) => void;
+  remove: (key: string) => void;
   clear: () => void;
 };
 
 const Ctx = createContext<CartCtx | null>(null);
 const KEY = "bsr-cart-v1";
+export const lineKey = (productId: string, variantId?: string) => (variantId ? `${productId}:${variantId}` : productId);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
@@ -32,7 +39,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(KEY);
-      if (raw) setLines(JSON.parse(raw));
+      if (raw) {
+        const saved = JSON.parse(raw) as CartLine[];
+        setLines(saved.map((l) => ({ ...l, key: l.key ?? lineKey(l.productId, l.variantId) })));
+      }
     } catch {
       /* storage unavailable */
     }
@@ -48,26 +58,23 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [lines, ready]);
 
-  const add = useCallback((line: Omit<CartLine, "qty">, qty: number) => {
+  const add = useCallback((line: Omit<CartLine, "qty" | "key">, qty: number) => {
+    const key = lineKey(line.productId, line.variantId);
     setLines((prev) => {
-      const found = prev.find((l) => l.productId === line.productId);
+      const found = prev.find((l) => l.key === key);
       if (found) {
-        return prev.map((l) =>
-          l.productId === line.productId ? { ...l, ...line, qty: Math.min(line.maxQty, l.qty + qty) } : l
-        );
+        return prev.map((l) => (l.key === key ? { ...l, ...line, qty: Math.min(line.maxQty, l.qty + qty) } : l));
       }
-      return [...prev, { ...line, qty: Math.min(line.maxQty, qty) }];
+      return [...prev, { ...line, key, qty: Math.min(line.maxQty, qty) }];
     });
   }, []);
 
-  const setQty = useCallback((productId: string, qty: number) => {
-    setLines((prev) =>
-      prev.map((l) => (l.productId === productId ? { ...l, qty: Math.max(1, Math.min(l.maxQty, qty)) } : l))
-    );
+  const setQty = useCallback((key: string, qty: number) => {
+    setLines((prev) => prev.map((l) => (l.key === key ? { ...l, qty: Math.max(1, Math.min(l.maxQty, qty)) } : l)));
   }, []);
 
-  const remove = useCallback((productId: string) => {
-    setLines((prev) => prev.filter((l) => l.productId !== productId));
+  const remove = useCallback((key: string) => {
+    setLines((prev) => prev.filter((l) => l.key !== key));
   }, []);
 
   const clear = useCallback(() => setLines([]), []);

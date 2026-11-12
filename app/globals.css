@@ -340,3 +340,13 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--rose); outl
 .prose a { color: var(--rose); text-underline-offset: 3px; }
 .prose blockquote { margin: 0; padding: 4px 0 4px 20px; border-left: 3px solid var(--sage); font-family: var(--font-display); font-size: 1.3rem; font-style: italic; }
 .post-cta { margin-top: 48px; padding: 32px; background: var(--sand); border-radius: var(--radius); display: grid; gap: 10px; justify-items: start; }
+
+/* ---- Colour options ---- */
+.made-to-order { color: var(--rose); font-weight: 600; }
+.ready-now { color: var(--moss); font-weight: 600; }
+.cart-variant { font-size: 0.9rem; color: var(--muted); }
+.cart-variant strong { color: var(--ink); }
+.variant-rows { display: grid; gap: 10px; }
+.variant-row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.3fr) 90px auto; gap: 10px; align-items: end; padding: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.variant-row .field > span { font-size: 0.78rem; }
+@media (max-width: 560px) { .variant-row { grid-template-columns: 1fr 1fr; } }

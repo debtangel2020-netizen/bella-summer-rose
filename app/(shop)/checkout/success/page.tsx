@@ -28,7 +28,7 @@ export default async function SuccessPage({ searchParams }: { searchParams: Prom
           <span className="label">Order {order.id.slice(0, 8).toUpperCase()}</span>
           <div className="totals">
             {order.items.map((i) => (
-              <div key={i.productId}><span>{i.qty} × {i.name}</span><span>{rand(i.price * i.qty)}</span></div>
+              <div key={`${i.productId}:${i.variantId ?? ""}`}><span>{i.qty} × {i.name}{i.variant ? ` (${i.variant}${i.madeToOrder ? ", made to order" : ""})` : ""}</span><span>{rand(i.price * i.qty)}</span></div>
             ))}
             <div><span>Delivery to {order.address.country}</span><span>{order.shipping ? rand(order.shipping) : "Free"}</span></div>
             <div className="grand"><span>Paid</span><span>{rand(order.total)}</span></div>

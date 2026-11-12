@@ -25,7 +25,13 @@ export default async function AdminProducts() {
                 <strong>{p.name}</strong>
                 <div className="sub">
                   <span>{rand(p.price)}</span>
-                  <span>{p.stock <= 0 ? "Sold out" : `${p.stock} in stock`}</span>
+                  <span>
+                    {p.variants?.length
+                      ? `${p.variants.length} colour${p.variants.length > 1 ? "s" : ""} · ${p.variants.filter((v) => v.mode === "stock").reduce((n, v) => n + v.stock, 0)} in stock${p.variants.some((v) => v.mode === "order") ? " · made to order available" : ""}`
+                      : p.stock <= 0
+                      ? "Sold out"
+                      : `${p.stock} in stock`}
+                  </span>
                   {p.category && <span>{p.category}</span>}
                 </div>
               </div>

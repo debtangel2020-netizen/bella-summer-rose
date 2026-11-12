@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { getProductBySlug } from "@/lib/store";
 import { rand } from "@/lib/money";
 import { AddToCart, Gallery } from "@/components/ProductBuy";
+import { hasVariants, inStockCount, isAvailable, makingTimeText } from "@/lib/variants";
 
 export const dynamic = "force-dynamic";
 
@@ -25,9 +26,22 @@ export default async function ProductPage({ params }: Props) {
   const product = await getProductBySlug(slug);
   if (!product || !product.published) notFound();
 
-  const stockText =
-    product.stock <= 0 ? "Sold out" : product.stock === 1 ? "Only one made" : product.stock <= 3 ? `Only ${product.stock} left` : "In stock";
-  const stockClass = product.stock <= 0 ? "out" : product.stock <= 3 ? "low" : "in";
+  const ready = inStockCount(product);
+  const anyMadeToOrder = product.variants.some((v) => v.mode === "order");
+  const stockText = !isAvailable(product)
+    ? "Sold out"
+    : hasVariants(product)
+    ? ready > 0 && anyMadeToOrder
+      ? "Some colours in stock, others made to order"
+      : ready > 0
+      ? "In stock"
+      : `Made to order · ready in ${makingTimeText(product)}`
+    : ready === 1
+    ? "Only one made"
+    : ready <= 3
+    ? `Only ${ready} left`
+    : "In stock";
+  const stockClass = !isAvailable(product) ? "out" : hasVariants(product) ? "in" : ready <= 3 ? "low" : "in";
 
   const specs: [string, string][] = [
     ["Yarn & fibre", product.materials],

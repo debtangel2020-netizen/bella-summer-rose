@@ -44,7 +44,7 @@ export async function POST(req: Request) {
   order.paymentId = event.payload.id;
   order.paidAt = new Date().toISOString();
   await saveOrder(order);
-  await adjustStock(order.items.map((i) => ({ productId: i.productId, qty: i.qty })));
+  await adjustStock(order.items.map((i) => ({ productId: i.productId, variantId: i.variantId, qty: i.qty })));
 
   return new Response("ok", { status: 200 });
 }

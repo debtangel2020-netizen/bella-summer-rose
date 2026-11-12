@@ -1,3 +1,12 @@
+export type Variant = {
+  id: string;
+  /** Colour name shown to customers, e.g. "Sage" */
+  name: string;
+  /** "stock" = already made (uses stock count), "order" = made to order */
+  mode: "stock" | "order";
+  stock: number;
+};
+
 export type Product = {
   id: string;
   slug: string;
@@ -12,6 +21,10 @@ export type Product = {
   /** Hours on the needles, optional */
   hours: number | null;
   stock: number;
+  /** Colour options. Empty = no colour choice (uses stock above). */
+  variants: Variant[];
+  /** Making time for made-to-order colours, e.g. "about 2 weeks" */
+  makingTime: string;
   images: string[];
   featured: boolean;
   published: boolean;
@@ -37,6 +50,10 @@ export type Settings = {
 
 export type OrderItem = {
   productId: string;
+  variantId?: string;
+  /** Colour chosen, if the product has colours */
+  variant?: string;
+  madeToOrder?: boolean;
   name: string;
   price: number;
   qty: number;

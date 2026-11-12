@@ -3,11 +3,12 @@ import { getProducts, getSettings, saveOrder } from "@/lib/store";
 import { shippingFor } from "@/lib/money";
 import { createCheckout } from "@/lib/yoco";
 import type { Order, OrderItem } from "@/lib/types";
+import { availableQty, findVariant, hasVariants } from "@/lib/variants";
 
 export const runtime = "nodejs";
 
 type Body = {
-  items: { productId: string; qty: number }[];
+  items: { productId: string; variantId?: string; qty: number }[];
   customer: { name: string; email: string; phone: string };
   address: Order["address"];
   note?: string;
@@ -46,13 +47,28 @@ export async function POST(req: Request) {
     const qty = Math.floor(Number(line.qty));
     if (!p) return Response.json({ error: "One of the items in your cart is no longer available. Please remove it and try again." }, { status: 409 });
     if (!(qty > 0)) continue;
-    if (p.stock < qty) {
+    const v = findVariant(p, line.variantId);
+    if (hasVariants(p) && !v) {
+      return Response.json({ error: `Please choose a colour for "${p.name}" again. Remove it from your cart and add it back.` }, { status: 409 });
+    }
+    const label = v ? `${p.name} (${v.name})` : p.name;
+    const max = availableQty(p, v?.id);
+    if (max < qty) {
       return Response.json(
-        { error: p.stock <= 0 ? `Sorry, "${p.name}" has just sold out. Please remove it from your cart.` : `Only ${p.stock} of "${p.name}" left. Please lower the quantity.` },
+        { error: max <= 0 ? `Sorry, "${label}" has just sold out. Please remove it from your cart.` : `Only ${max} of "${label}" left. Please lower the quantity.` },
         { status: 409 }
       );
     }
-    items.push({ productId: p.id, name: p.name, price: p.price, qty, image: p.images[0] ?? null });
+    items.push({
+      productId: p.id,
+      variantId: v?.id,
+      variant: v?.name,
+      madeToOrder: v?.mode === "order" ? true : undefined,
+      name: p.name,
+      price: p.price,
+      qty,
+      image: p.images[0] ?? null,
+    });
   }
   if (items.length === 0) return Response.json({ error: "Your cart is empty." }, { status: 400 });
 

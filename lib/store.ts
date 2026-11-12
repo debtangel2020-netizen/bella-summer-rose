@@ -33,6 +33,7 @@ function assertStorage() {
 const KEEP_VERSIONS = 5;
 const versionPrefix = (key: string) => `${key}.versions/`;
 const urlCache = new Map<string, string>();
+let lastStamp = 0;
 
 async function fetchJSON<T>(url: string): Promise<T | undefined> {
   const res = await fetch(url, { cache: "no-store" });
@@ -84,7 +85,8 @@ export async function writeJSON(key: string, value: unknown, opts: { versioned?:
     return;
   }
   if (useBlob) {
-    const stamp = String(Date.now()).padStart(15, "0");
+    lastStamp = Math.max(Date.now(), lastStamp + 1);
+    const stamp = String(lastStamp).padStart(15, "0");
     await put(`${versionPrefix(key)}${stamp}-${randomUUID().slice(0, 8)}.json`, body, {
       access: "public",
       addRandomSuffix: false,
@@ -119,7 +121,11 @@ export async function writeJSON(key: string, value: unknown, opts: { versioned?:
 
 /** fresh: true reads the newest saved version (use in the admin and before any save). */
 export async function getProducts(opts: { fresh?: boolean } = {}): Promise<Product[]> {
-  const items = await readJSON<Product[]>("data/products.json", [], opts);
+  const items = (await readJSON<Product[]>("data/products.json", [], opts)).map((p) => ({
+    ...p,
+    variants: p.variants ?? [],
+    makingTime: p.makingTime ?? "",
+  }));
   return items.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
@@ -176,11 +182,18 @@ export async function deleteProduct(id: string): Promise<void> {
   await writeJSON("data/products.json", all.filter((p) => p.id !== id));
 }
 
-export async function adjustStock(changes: { productId: string; qty: number }[]): Promise<void> {
+export async function adjustStock(changes: { productId: string; variantId?: string; qty: number }[]): Promise<void> {
   const all = await getProducts({ fresh: true });
   for (const c of changes) {
     const p = all.find((x) => x.id === c.productId);
-    if (p) p.stock = Math.max(0, p.stock - c.qty);
+    if (!p) continue;
+    const v = c.variantId ? p.variants.find((x) => x.id === c.variantId) : undefined;
+    if (v) {
+      if (v.mode === "stock") v.stock = Math.max(0, v.stock - c.qty);
+      p.stock = p.variants.reduce((n, x) => n + (x.mode === "stock" ? x.stock : 0), 0);
+    } else if (!p.variants.length) {
+      p.stock = Math.max(0, p.stock - c.qty);
+    }
   }
   await writeJSON("data/products.json", all);
 }
